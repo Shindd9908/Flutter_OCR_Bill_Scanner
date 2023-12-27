@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               onPressed: _scanImage,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor,
-                                padding: EdgeInsets.symmetric(vertical: 15),
+                                padding: const EdgeInsets.symmetric(vertical: 15),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),

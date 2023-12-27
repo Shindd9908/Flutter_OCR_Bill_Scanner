@@ -1,39 +1,34 @@
-
 import 'package:number_to_vietnamese_words/number_to_vietnamese_words.dart';
 
 void main() {
   String input = """
-  12/25/23, 4:37 PM
-SDT:
-Dịa chỉ: --
-Khách hàng: Khách lẻ
+2/25/23, 4:43 PM
+Địa chi:- -
 Đơn giá
-10,000
-H88 Từ Sơn
-Dịa chỉ:--
+Khách hàng: Khách lẻ
+SDT:
+Chi nhánh tru.
+H88 Từ Son
+Địa chỉ: -
 Điện thoai: +84971021196
-HÓA ĐƠN BÁN HÀNG
-SỐ HD: HDO00056
-Hộp phở bò phố cổ
-Ghi chú
-Chi nhánh tru...
-Ngày 25 tháng 12 nåm 2023
-(Muoi nghin dồng chẳn)
+HÓA ĐƠN BẮN HÀNG
+SỐ HD: HDO00057
+Ngày 25 tháng 12 năm 2023
+Bàn Mỹ nghệ
+123,456,789
+Ghi chủ:
 SL
-Tồng tiền hàng:
-Chiết khấu:
+---.. 123,456,789
+Tổng tièn hàng:
+Chiết khấu :
 Tổng thanh toán:
-Cảm ơn và hẹn gập lại!
-Powered by KIOTVIET
-Thành tiền
-10,000
-10,000
-10,000
-15,000
-11,000
-12,000
-13,000
-14,000
+Thành tiên
+Cảm on và hẹn gåp lại!
+Pawered by KIOTVIET.
+123,456,789
+(Một trăm hai mươi ba triệu bón trăm năm mưoi s
+áu nghin bảy träm tám muoi chín dỏng chẳn)
+123,456,789
   """;
 
   List<String> extractedNumbers = extractNumbers(input);
@@ -47,46 +42,24 @@ Thành tiền
 
 List<String> extractNumbers(String input) {
   RegExp numberRegex = RegExp(r'\b\d{1,3}(,\d{3})*\b');
-  Iterable<Match> matches = numberRegex.allMatches(input);
-
-  List<String> extractedNumbers = [];
-
-  for (Match match in matches) {
-    extractedNumbers.add(match.group(0)!);
-  }
-
-  return extractedNumbers;
+  return numberRegex.allMatches(input).map((match) => match.group(0)!).toList();
 }
 
 List<String> removeDuplicates(List<String> numbers) {
-  Set<String> uniqueSet = Set<String>.from(numbers);
-  List<String> uniqueList = List<String>.from(uniqueSet);
-
-  return uniqueList;
+  return numbers.toSet().toList();
 }
 
 List<String> filterNumbers(List<String> numbers, int minValue) {
-  // Lọc ra các số từ danh sách có giá trị tối thiểu là minValue
-  List<String> filteredList = numbers.where((number) {
-    int numericValue = int.tryParse(number.replaceAll(',', '')) ?? 0;
-    return numericValue >= minValue;
+  return numbers.where((number) {
+    int? numericValue = int.tryParse(number.replaceAll(',', ''));
+    return numericValue != null && numericValue >= minValue;
   }).toList();
-
-  return filteredList;
 }
 
 String extractDataInsideParentheses(String input) {
-  RegExp parenthesesRegex = RegExp(r'\((.*?)\)');
-
+  RegExp parenthesesRegex = RegExp(r'\(([^)]+)\)');
   Match? match = parenthesesRegex.firstMatch(input);
-  if (match != null) {
-    String insideParentheses = match.group(1)!;
-    // Loại bỏ xuống dòng nếu có
-    insideParentheses = insideParentheses.replaceAll('\n', '');
-    return insideParentheses;
-  } else {
-    return ''; // Trả về chuỗi rỗng nếu không tìm thấy
-  }
+  return match?.group(1)?.replaceAll('\n', '') ?? '';
 }
 
 void processDataInsideParentheses(String dataInsideParentheses, List<String> filteredNumbers) {
@@ -96,6 +69,7 @@ void processDataInsideParentheses(String dataInsideParentheses, List<String> fil
   String currentKeyword = "";
 
   print("input: $dataInsideParentheses");
+  print("input2: $filteredNumbers");
 
   for (String keyword in keywords) {
     if (dataInsideParentheses.contains(keyword)) {
@@ -114,8 +88,10 @@ void processDataInsideParentheses(String dataInsideParentheses, List<String> fil
   }
 
   // Lọc giá trị từ danh sách đã có và thêm vào danh sách lọc
-  List<String> numbers = filteredNumbers.where((number) => (int.tryParse(number.replaceAll(',', '')) ?? 0) >= value).toList();
-  print(numbers);
+  List<String> numbers = filteredNumbers.where((number) {
+    int? numericValue = int.tryParse(number.replaceAll(',', ''));
+    return (numericValue ?? 0) >= value;
+  }).toList();
 
   int index = dataInsideParentheses.indexOf(currentKeyword);
   if (index > 0) {
@@ -123,8 +99,6 @@ void processDataInsideParentheses(String dataInsideParentheses, List<String> fil
     String substringBeforeKeyword = dataInsideParentheses.substring(0, index);
 
     // Lọc giá trị từ chuỗi trước currentKeyword và thêm vào danh sách lọc
-    print(substringBeforeKeyword);
-
     String newSubstring = '';
     switch (substringBeforeKeyword[0].toLowerCase()) {
       case 'm':
@@ -134,9 +108,19 @@ void processDataInsideParentheses(String dataInsideParentheses, List<String> fil
         newSubstring = filteredNumbers.where((number) => number.startsWith('2')).join(', ');
         break;
       case 'b':
-        newSubstring = filteredNumbers.where((number) => number.endsWith('a')).join(', ');
-        newSubstring += filteredNumbers.where((number) => number.endsWith('y')).join(', ');
-        newSubstring += filteredNumbers.where((number) => number.endsWith('n')).join(', ');
+        newSubstring = filteredNumbers.where((number) {
+          if (substringBeforeKeyword.length - 1 == 2) {
+            return number.startsWith('3');
+          } else if (substringBeforeKeyword.length - 1 == 3) {
+            String lastChar = substringBeforeKeyword.isNotEmpty ? substringBeforeKeyword.substring(substringBeforeKeyword.length - 2) : '';
+            if (lastChar == 'n ') {
+              return number.startsWith('4');
+            } else if (lastChar == 'y ') {
+              return number.startsWith('7');
+            }
+          }
+          return false; // Hoặc return true/false tùy thuộc vào trường hợp mặc định của bạn
+        }).join(', ');
         break;
       case 'n':
         newSubstring = filteredNumbers.where((number) => number.startsWith('5')).join(', ');
@@ -150,17 +134,11 @@ void processDataInsideParentheses(String dataInsideParentheses, List<String> fil
       // Thêm các case khác tương ứng với quy tắc của bạn
     }
 
-    print(newSubstring);
     Map<String, int> lengthsMap = {};
-    List<String> formattedNumbers = extractNumbers(newSubstring)
-        .map((number) => (int.tryParse(number.replaceAll(',', '')) ?? 0).toString())
-        .toList();
-    print(formattedNumbers.join(', '));
+    List<String> formattedNumbers = extractNumbers(newSubstring).map((number) => (int.tryParse(number.replaceAll(',', '')) ?? 0).toString()).toList();
 
     for (var number in formattedNumbers) {
       String formattedNumber = number.replaceAll(',', '');
-      print("$formattedNumber : ${int.parse(formattedNumber).toVietnameseWords()}");
-
       int length = "${int.parse(formattedNumber).toVietnameseWords()} đồng chẵn".length;
       lengthsMap[formattedNumber] = length;
     }
@@ -181,5 +159,3 @@ void processDataInsideParentheses(String dataInsideParentheses, List<String> fil
     print("closestMatch: $closestMatch");
   }
 }
-
-

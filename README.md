@@ -45,7 +45,8 @@ To run this app locally on your machine, follow these steps:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/hapo-khangld/Flutter_OCR_Bill_Scanner.git
+   git clone git@github.com:Shindd9908/Flutter_OCR_Bill_Scanner.git
+   git clone https://github.com/Shindd9908/Flutter_OCR_Bill_Scanner.git
 2. Change into the app directory:
    ```bash
    cd image_to_text_flutter_app
