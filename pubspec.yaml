@@ -16,6 +16,10 @@ dependencies:
   permission_handler: ^10.4.3
   number_to_vietnamese_words: ^1.0.1+1
 
+  get: ^4.6.6
+  image_picker: ^1.0.5
+  cached_network_image: ^3.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'hepler.dart';
+import 'utils/hepler.dart';
 
 class ResultScreen extends StatelessWidget {
   final String text;

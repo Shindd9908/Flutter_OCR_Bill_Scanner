@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'result_screen.dart';
+import '../../../result_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,9 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.inactive) {
       _stopCamera();
-    } else if (state == AppLifecycleState.resumed &&
-        _cameraController != null &&
-        _cameraController!.value.isInitialized) {
+    } else if (state == AppLifecycleState.resumed && _cameraController != null && _cameraController!.value.isInitialized) {
       _startCamera();
     }
   }
@@ -87,43 +86,63 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         Expanded(
                           child: Container(),
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2.4,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 40),
-                            child: ElevatedButton(
-                              onPressed: _scanImage,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).primaryColor,
-                                padding: const EdgeInsets.symmetric(vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.4,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 40),
+                                child: ElevatedButton(
+                                  onPressed: _scanImage,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    padding: const EdgeInsets.symmetric(vertical: 15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Scan Text",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (isLoading)
-                                    const SizedBox(
-                                      height: 21,
-                                      width: 21,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2.57,
-                                      ),
+                            ),
+                            const SizedBox(width: 16),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2.4,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 40),
+                                child: InkWell(
+                                  onTap: () async => await _uploadImage(),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.symmetric(vertical: 15),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor,
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                  if (isLoading)
-                                    const SizedBox(
-                                      width: 20,
-                                    ),
-                                  const Text("Scan Text",
+                                    child: const Text(
+                                      "Upload",
                                       style: TextStyle(
                                         fontSize: 18,
-                                      )),
-                                ],
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     )
@@ -214,8 +233,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       await navigator.push(
         MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ResultScreen(text: recognizedText.text),
+          builder: (BuildContext context) => ResultScreen(text: recognizedText.text),
         ),
       );
       setState(() {
@@ -230,6 +248,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           content: Text('An error occurred when scanning text'),
         ),
       );
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    XFile? result = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (result != null) {
+      final file = File(result.path);
+      final recognizedText = await textRecognizer.processImage(InputImage.fromFile(file));
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) => ResultScreen(text: recognizedText.text),
+          ),
+        );
+      }
     }
   }
 }

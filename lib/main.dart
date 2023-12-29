@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:image_to_text_flutter/home.dart';
+import 'package:get/get.dart';
+import 'package:image_to_text_flutter/modules/home/screens/home_screen.dart';
 
 void main() {
   runApp(const App());
@@ -10,12 +11,10 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-      ),
-      home: HomeScreen(),
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      home: const HomeScreen(),
     );
   }
 }
